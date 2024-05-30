@@ -1,19 +1,20 @@
 ﻿  Critter.cpp
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\Critter.cpp(52,49): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\Critter.cpp(52,35): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\Critter.cpp(52,49): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\Critter.cpp(52,35): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   main.cpp
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(40,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(52,34): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(52,34): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(52,53): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(52,53): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(65,31): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(65,31): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(65,54): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(65,54): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(90,28): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(98,28): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(114,34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\CDDS_Optimise\main.cpp(122,34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(40,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(52,34): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(52,34): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(52,53): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(52,53): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(65,31): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(65,31): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(65,54): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(65,54): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(90,28): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(98,28): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(114,34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\s233275\Documents\GitHub\code_design_task_1\CDDS_Optimise\main.cpp(122,34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Generating Code...
-  CDDS_Optimise.vcxproj -> C:\Users\s233275\Downloads\AIEYear1Samples-master\Original\bin\Win32\Debug\CDDS_Optimise.exe
+  LINK : C:\Users\s233275\Documents\GitHub\code_design_task_1\bin\Win32\Debug\CDDS_Optimise.exe not found or not built by the last incremental link; performing full link
+  CDDS_Optimise.vcxproj -> C:\Users\s233275\Documents\GitHub\code_design_task_1\bin\Win32\Debug\CDDS_Optimise.exe

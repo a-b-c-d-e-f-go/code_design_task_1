@@ -400,6 +400,7 @@ FodyWeavers.xsd
 #Raylib
 .vs/
 RaylibStarterCS/obj/
+RaylibStarterCS/Debug/
 **/Debug/
 **/Release/
 !Raylib/

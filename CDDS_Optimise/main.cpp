@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
     srand(time(NULL));
 
 
-    Critter critters[1000]; 
+    Critter critters[1000]; //Could use pointers instead for polymorphism, allowing the Destroyer to become part of it and not reuse code.
 
     // create some critters
     const int CRITTER_COUNT = 50;
@@ -48,6 +48,8 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < CRITTER_COUNT; i++)
     {
+        //Could just create a vector with the right velocity instead of scaling afterwards?
+
         // create a random direction vector for the velocity
         Vector2 velocity = { -100+(rand()%200), -100+(rand()%200) };
         // normalize and scale by a random speed
@@ -60,10 +62,11 @@ int main(int argc, char* argv[])
             12, "res/10.png");
     }
 
-
+    //REPEATED CODE
     Critter destroyer;
     Vector2 velocity = { -100 + (rand() % 200), -100 + (rand() % 200) };
     velocity = Vector2Scale(Vector2Normalize(velocity), MAX_VELOCITY);
+    //REPEATED CODE
     destroyer.Init(Vector2{ (float)(screenWidth >> 1), (float)(screenHeight >> 1) }, velocity, 20, "res/9.png");
 
     float timer = 1;
@@ -82,6 +85,8 @@ int main(int argc, char* argv[])
         // update the destroyer
         destroyer.Update(delta);
         // check each critter against screen bounds
+
+        //REPEATED CODE
         if (destroyer.GetX() < 0) {
             destroyer.SetX(0);
             destroyer.SetVelocity(Vector2{ -destroyer.GetVelocity().x, destroyer.GetVelocity().y });
@@ -98,6 +103,7 @@ int main(int argc, char* argv[])
             destroyer.SetY(screenHeight);
             destroyer.SetVelocity(Vector2{ destroyer.GetVelocity().x, -destroyer.GetVelocity().y });
         }
+        //REPEATED CODE
 
         // update the critters
         // (dirty flags will be cleared during update)
@@ -106,6 +112,7 @@ int main(int argc, char* argv[])
             critters[i].Update(delta);
 
             // check each critter against screen bounds
+            //REPEATED CODE
             if (critters[i].GetX() < 0) {
                 critters[i].SetX(0);
                 critters[i].SetVelocity(Vector2{ -critters[i].GetVelocity().x, critters[i].GetVelocity().y });
@@ -122,9 +129,11 @@ int main(int argc, char* argv[])
                 critters[i].SetY(screenHeight);
                 critters[i].SetVelocity(Vector2{ critters[i].GetVelocity().x, -critters[i].GetVelocity().y });
             }
+            //REPEATED CODE
 
             // kill any critter touching the destroyer
             // simple circle-to-circle collision check
+            //Could use distance squared or AABB to see if it's worth checking for collisions.
             float dist = Vector2Distance(critters[i].GetPosition(), destroyer.GetPosition());
             if (dist < critters[i].GetRadius() + destroyer.GetRadius())
             {
@@ -134,6 +143,8 @@ int main(int argc, char* argv[])
         }
                 
         // check for critter-on-critter collisions
+
+        //Could use distance squared or AABB to see if it's worth checking for collisions.
         for (int i = 0; i < CRITTER_COUNT; i++)
         {            
             for (int j = 0; j < CRITTER_COUNT; j++){
@@ -179,6 +190,7 @@ int main(int argc, char* argv[])
                     Vector2 pos = destroyer.GetPosition();
                     pos = Vector2Add(pos, Vector2Scale(normal, -50));
                     // its pretty ineficient to keep reloading textures. ...if only there was something else we could do
+                    //It's almost like all the critters use the same texture or something.
                     critters[i].Init(pos, Vector2Scale(normal, -MAX_VELOCITY), 12, "res/10.png");
                     break;
                 }
