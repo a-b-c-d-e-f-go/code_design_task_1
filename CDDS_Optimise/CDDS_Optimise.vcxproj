@@ -169,9 +169,16 @@
   <ItemGroup>
     <ClCompile Include="Critter.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Node.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AABB.h" />
+    <ClInclude Include="AL.h" />
     <ClInclude Include="Critter.h" />
+    <ClInclude Include="Destroyer.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="Node.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
