@@ -399,7 +399,8 @@ FodyWeavers.xsd
 
 #Raylib
 .vs/
-RaylibStarterCS/obj/
+CDDS_Optimise/obj/
+CDDS_Optimise/Debug/
 **/Debug/
 **/Release/
 !Raylib/
