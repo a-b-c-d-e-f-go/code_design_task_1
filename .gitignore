@@ -396,3 +396,10 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+#Raylib
+.vs/
+RaylibStarterCS/obj/
+**/Debug/
+**/Release/
+!Raylib/
