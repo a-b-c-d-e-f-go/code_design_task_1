@@ -2,26 +2,32 @@
 
 
 #include "raylib.h"
+#include <random>
 
 class Critter
 {
 protected:	
 	Vector2 m_position;
 	Vector2 m_velocity;
-	float m_radius;
 
-	Texture2D m_texture;
+	const Texture2D* m_texture;
 
 	bool m_isLoaded;
 	bool m_isDirty;		// indicates if we've already processed a collision response for this critter
+
+	int m_hWidth = 0;
+	int m_hHeight = 0;
 	
 public:
 	Critter();
 	~Critter();
 
-	void Init(Vector2 position, Vector2 velocity, float radius, const char* texture);
+	void Init(Vector2 position, Vector2 velocity);
+	void Spawn(const int screenWidth, const int screenHeight, const int MAX_VELOCITY);
+	virtual void SetTexture(const Texture2D* texture);
 	void Destroy();
 	void Update(float dt);
+	void WallBounce(const int screenWidth, const int screenHeight);
 	void Draw();
 
 	float GetX() { return m_position.x; }
@@ -35,7 +41,7 @@ public:
 	Vector2 GetVelocity() { return m_velocity; }
 	void SetVelocity(Vector2 velocity) { m_velocity = velocity; }
 
-	float GetRadius() { return m_radius; }
+	float GetRadius() { return m_hWidth; }
 
 	bool IsDirty() { return m_isDirty; }
 	void SetDirty() { m_isDirty = true; }
