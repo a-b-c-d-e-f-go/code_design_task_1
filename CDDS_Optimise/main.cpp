@@ -35,18 +35,18 @@ int main(int argc, char* argv[])
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
     //SetTargetFPS(60);
-    //--------------------------------------------------------------------------------------
 
     srand(time(NULL));
 
+    //Load textures after opening the window.
     const Texture2D t_critter = LoadTexture("res/10.png");
     const Texture2D t_destroyer = LoadTexture("res/9.png");
 
-    Critter critters[1000]; //Could use pointers instead for polymorphism, allowing the Destroyer to become part of it and not reuse code.
-
-    // create some critters
+    //Const variables for initializing critters.
     const int CRITTER_COUNT = 50;
     const int MAX_VELOCITY = 80;
+
+    Critter critters[CRITTER_COUNT]; //Takes up only as much memory as it needs to.
 
     for (int i = 0; i < CRITTER_COUNT; i++)
     {
@@ -55,13 +55,14 @@ int main(int argc, char* argv[])
         critters[i].SetTexture(&t_critter);
     }
 
-    //Create a destroyer in a random location aned load its texture.
+    //Create a destroyer in a random location and load its texture.
     Critter destroyer;
     destroyer.Spawn(screenWidth, screenHeight, MAX_VELOCITY);
     destroyer.SetTexture(&t_destroyer);
 
     float timer = 1;
     Vector2 nextSpawnPos = destroyer.GetPosition();
+    //--------------------------------------------------------------------------------------
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -77,48 +78,45 @@ int main(int argc, char* argv[])
         // (dirty flags will be cleared during update)
         for (int i = 0; i < CRITTER_COUNT; i++)
         {
-            critters[i].Update(delta); //Update each critter.
-            critters[i].WallBounce(screenWidth, screenHeight); //Check each critter against screen bounds.
-
-            // kill any critter touching the destroyer
-            // simple circle-to-circle collision check
-            //Could use distance squared or AABB to see if it's worth checking for collisions.
-            float dist = Vector2Distance(critters[i].GetPosition(), destroyer.GetPosition());
-            if (dist < critters[i].GetRadius() + destroyer.GetRadius())
+            if (!critters[i].IsDead())
             {
-                critters[i].Destroy();
-                // this would be the perfect time to put the critter into an object pool
-            }
-        }
+                critters[i].Update(delta); //Update each critter.
+                critters[i].WallBounce(screenWidth, screenHeight); //Check each critter against screen bounds.
 
-        // check for critter-on-critter collisions
-
-        //Could use distance squared or AABB to see if it's worth checking for collisions.
-        for (int i = 0; i < CRITTER_COUNT; i++)
-        {
-            for (int j = 0; j < CRITTER_COUNT; j++) {
-                if (i == j || critters[i].IsDirty() || critters[i].IsDead() || critters[j].IsDead()) // note: the other critter (j) could be dirty - that's OK
-                    continue;
-                // check every critter against every other critter
-                float dist = Vector2Distance(critters[i].GetPosition(), critters[j].GetPosition());
-                if (dist < critters[i].GetRadius() + critters[j].GetRadius())
+                // kill any critter touching the destroyer
+                // simple circle-to-circle collision check
+                float dist = Vector2Distance(critters[i].GetPosition(), destroyer.GetPosition());
+                if (dist < critters[i].GetHWidth() + destroyer.GetHWidth())
                 {
-                    // collision!
-                    // do math to get critters bouncing
-                    Vector2 normal = Vector2Normalize(Vector2Subtract(critters[j].GetPosition(), critters[i].GetPosition()));
+                    critters[i].Destroy(); //Does not actually deallocate the object, but instead counts it as dead. Object pools for the win!
+                    continue;
+                }
+                //Loop through all other critters.
+                for (int j = 0; j < CRITTER_COUNT; j++) {
+                    if (i != j && !critters[i].IsDirty() && !critters[j].IsDead()) // note: the other critter (j) could be dirty - that's OK
+                    {
+                        // check every critter against every other critter
+                        float dist = Vector2Distance(critters[i].GetPosition(), critters[j].GetPosition());
+                        if (dist < critters[i].GetHWidth() + critters[j].GetHWidth())
+                        {
+                            // collision!
+                            // do math to get critters bouncing
+                            Vector2 normal = Vector2Normalize(Vector2Subtract(critters[j].GetPosition(), critters[i].GetPosition()));
 
-                    // not even close to real physics, but fine for our needs
-                    critters[i].SetVelocity(Vector2Scale(normal, -MAX_VELOCITY));
-                    // set the critter to *dirty* so we know not to process any more collisions on it
-                    critters[i].SetDirty();
+                            // not even close to real physics, but fine for our needs
+                            critters[i].SetVelocity(Vector2Scale(normal, -MAX_VELOCITY));
+                            // set the critter to *dirty* so we know not to process any more collisions on it
+                            critters[i].SetDirty();
 
-                    // we still want to check for collisions in the case where 1 critter is dirty - so we need a check 
-                    // to make sure the other critter is clean before we do the collision response
-                    if (!critters[j].IsDirty()) {
-                        critters[j].SetVelocity(Vector2Scale(normal, MAX_VELOCITY));
-                        critters[j].SetDirty();
+                            // we still want to check for collisions in the case where 1 critter is dirty - so we need a check 
+                            // to make sure the other critter is clean before we do the collision response
+                            if (!critters[j].IsDirty()) {
+                                critters[j].SetVelocity(Vector2Scale(normal, MAX_VELOCITY));
+                                critters[j].SetDirty();
+                            }
+                            break;
+                        }
                     }
-                    break;
                 }
             }
         }
@@ -128,7 +126,8 @@ int main(int argc, char* argv[])
         {
             timer = 1;
 
-            // find any dead critters and spit them out (respawn)
+            //Find any dead critters and spit them out (respawn).
+
             for (int i = 0; i < CRITTER_COUNT; i++)
             {
                 if (critters[i].IsDead())
@@ -152,7 +151,7 @@ int main(int argc, char* argv[])
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-        ClearBackground(RAYWHITE);
+        ClearBackground(DARKGRAY);
 
         //Draw the critters.
         for (int i = 0; i < CRITTER_COUNT; i++)
@@ -171,7 +170,7 @@ int main(int argc, char* argv[])
     //Cleanup
     for (int i = 0; i < CRITTER_COUNT; i++)
     {
-        critters[i].Destroy();
+        critters[i].~Critter();
     }
     //Only 2 textures need to be unloaded, because only 2 were loaded in the first place.
     UnloadTexture(t_critter);
