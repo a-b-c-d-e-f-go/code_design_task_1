@@ -3,6 +3,6 @@
 class Destroyer : public Critter
 {
 public:
-	virtual void OnCollide(Critter* other, const int MAX_VELOCITY) override;
-	virtual char Type() override { return 'd'; }
+	virtual bool Collides(Critter* other) override { return false; } //Ignore collisions itself and continue its current path unhindered.
+	virtual char Type() override { return 'd'; } //Count as the destroyer when critters collide with it.
 };
