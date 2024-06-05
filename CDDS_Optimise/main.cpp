@@ -24,6 +24,10 @@
 #include <random>
 #include <time.h>
 #include "Critter.h"
+#include "Destroyer.h"
+
+#define destroyer critters[0] //For readability.
+
 
 int main(int argc, char* argv[])
 {
@@ -43,25 +47,27 @@ int main(int argc, char* argv[])
     const Texture2D t_destroyer = LoadTexture("res/9.png");
 
     //Const variables for initializing critters.
-    const int CRITTER_COUNT = 50;
+    const int CRITTER_COUNT = 500;
     const int MAX_VELOCITY = 80;
 
-    Critter critters[CRITTER_COUNT]; //Takes up only as much memory as it needs to.
+    Critter* critters[CRITTER_COUNT]; //Takes up only as much memory as it needs to.
 
-    for (int i = 0; i < CRITTER_COUNT; i++)
+    //Initialize the destroyer.
+    critters[0] = new Destroyer(); //New destroyer at 0.
+    destroyer->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
+    destroyer->SetTexture(&t_destroyer);
+
+    //Initialize critters.
+    for (int i = 1; i < CRITTER_COUNT; i++)
     {
         //Create a critter in a random location and load its texture.
-        critters[i].Spawn(screenWidth, screenHeight, MAX_VELOCITY);
-        critters[i].SetTexture(&t_critter);
+        critters[i] = new Critter();
+        critters[i]->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
+        critters[i]->SetTexture(&t_critter);
     }
 
-    //Create a destroyer in a random location and load its texture.
-    Critter destroyer;
-    destroyer.Spawn(screenWidth, screenHeight, MAX_VELOCITY);
-    destroyer.SetTexture(&t_destroyer);
-
     float timer = 1;
-    Vector2 nextSpawnPos = destroyer.GetPosition();
+    Vector2 nextSpawnPos = destroyer->GetPosition();
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -71,49 +77,21 @@ int main(int argc, char* argv[])
         //----------------------------------------------------------------------------------
         float delta = GetFrameTime();
 
-        destroyer.Update(delta); //Update the destroyer.
-        destroyer.WallBounce(screenWidth, screenHeight); //Check the destroyer against screen bounds.
-
-        // update the critters
-        // (dirty flags will be cleared during update)
         for (int i = 0; i < CRITTER_COUNT; i++)
         {
-            if (!critters[i].IsDead())
+            if (!critters[i]->IsDead())
             {
-                critters[i].Update(delta); //Update each critter.
-                critters[i].WallBounce(screenWidth, screenHeight); //Check each critter against screen bounds.
-
-                // kill any critter touching the destroyer
-                // simple circle-to-circle collision check
-                float dist = Vector2Distance(critters[i].GetPosition(), destroyer.GetPosition());
-                if (dist < critters[i].GetHWidth() + destroyer.GetHWidth())
-                {
-                    critters[i].Destroy(); //Does not actually deallocate the object, but instead counts it as dead. Object pools for the win!
-                    continue;
-                }
+                critters[i]->Update(delta); //Update each critter (dirty flags will be cleared during update).
+                critters[i]->WallBounce(screenWidth, screenHeight); //Check each critter against screen bounds.
                 //Loop through all other critters.
                 for (int j = 0; j < CRITTER_COUNT; j++) {
-                    if (i != j && !critters[i].IsDirty() && !critters[j].IsDead()) // note: the other critter (j) could be dirty - that's OK
+                    if (i != j && !critters[i]->IsDirty() && !critters[j]->IsDead()) // note: the other critter (j) could be dirty - that's OK
                     {
-                        // check every critter against every other critter
-                        float dist = Vector2Distance(critters[i].GetPosition(), critters[j].GetPosition());
-                        if (dist < critters[i].GetHWidth() + critters[j].GetHWidth())
+                        //Check every critter against every other critter.
+                        if (critters[i]->Collides(critters[j]))
                         {
-                            // collision!
-                            // do math to get critters bouncing
-                            Vector2 normal = Vector2Normalize(Vector2Subtract(critters[j].GetPosition(), critters[i].GetPosition()));
-
-                            // not even close to real physics, but fine for our needs
-                            critters[i].SetVelocity(Vector2Scale(normal, -MAX_VELOCITY));
-                            // set the critter to *dirty* so we know not to process any more collisions on it
-                            critters[i].SetDirty();
-
-                            // we still want to check for collisions in the case where 1 critter is dirty - so we need a check 
-                            // to make sure the other critter is clean before we do the collision response
-                            if (!critters[j].IsDirty()) {
-                                critters[j].SetVelocity(Vector2Scale(normal, MAX_VELOCITY));
-                                critters[j].SetDirty();
-                            }
+                            //Break the second loop on collision (still looping through i).
+                            critters[i]->OnCollide(critters[j], MAX_VELOCITY);
                             break;
                         }
                     }
@@ -130,18 +108,18 @@ int main(int argc, char* argv[])
 
             for (int i = 0; i < CRITTER_COUNT; i++)
             {
-                if (critters[i].IsDead())
+                if (critters[i]->IsDead())
                 {
-                    Vector2 normal = Vector2Normalize(destroyer.GetVelocity());
+                    Vector2 normal = Vector2Normalize(destroyer->GetVelocity());
 
                     // get a position behind the destroyer, and far enough away that the critter won't bump into it again
-                    Vector2 pos = destroyer.GetPosition();
+                    Vector2 pos = destroyer->GetPosition();
                     pos = Vector2Add(pos, Vector2Scale(normal, -50));
-                    critters[i].Init(pos, Vector2Scale(normal, -MAX_VELOCITY));
+                    critters[i]->Init(pos, Vector2Scale(normal, -MAX_VELOCITY));
                     break;
                 }
             }
-            nextSpawnPos = destroyer.GetPosition();
+            nextSpawnPos = destroyer->GetPosition();
         }
         //----------------------------------------------------------------------------------
         
@@ -153,13 +131,11 @@ int main(int argc, char* argv[])
 
         ClearBackground(DARKGRAY);
 
-        //Draw the critters.
+        //Draw the critters and destroyer.
         for (int i = 0; i < CRITTER_COUNT; i++)
         {
-            critters[i].Draw();
+            critters[i]->Draw();
         }
-        //Draw the destroyer.
-        destroyer.Draw();
 
         DrawFPS(10, 10);
 
@@ -170,7 +146,7 @@ int main(int argc, char* argv[])
     //Cleanup
     for (int i = 0; i < CRITTER_COUNT; i++)
     {
-        critters[i].~Critter();
+        delete critters[i];
     }
     //Only 2 textures need to be unloaded, because only 2 were loaded in the first place.
     UnloadTexture(t_critter);

@@ -30,7 +30,9 @@ public:
 	void WallBounce(const int screenWidth, const int screenHeight);
 	void Draw();
 
-	bool Collides(Critter& other);
+	bool Collides(Critter* other);
+	virtual void OnCollide(Critter* other, const int MAX_VELOCITY);
+	virtual char Type() { return 'c'; }
 
 	const float GetX() const { return m_position.x; }
 	const float GetY() const { return m_position.y; }
