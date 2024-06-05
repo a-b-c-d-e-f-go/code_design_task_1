@@ -23,11 +23,10 @@
 #include "raymath.h"
 #include <random>
 #include <time.h>
-#include "IEntity.h"
 #include "Critter.h"
 #include "Destroyer.h"
 
-#define destroyer entities[0] //For readability.
+#define destroyer critters[0] //For readability.
 
 
 int main(int argc, char* argv[])
@@ -48,13 +47,13 @@ int main(int argc, char* argv[])
     const Texture2D t_destroyer = LoadTexture("res/9.png");
 
     //Const variables for initializing critters.
-    const int CRITTER_COUNT = 50;
+    const int CRITTER_COUNT = 500;
     const int MAX_VELOCITY = 80;
 
-    IEntity* entities[CRITTER_COUNT]{}; //Takes up only as much memory as it needs to.
+    Critter* critters[CRITTER_COUNT]; //Takes up only as much memory as it needs to.
 
     //Initialize the destroyer.
-    entities[0] = new Destroyer(); //New destroyer at 0.
+    critters[0] = new Destroyer(); //New destroyer at 0.
     destroyer->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
     destroyer->SetTexture(&t_destroyer);
 
@@ -62,9 +61,9 @@ int main(int argc, char* argv[])
     for (int i = 1; i < CRITTER_COUNT; i++)
     {
         //Create a critter in a random location and load its texture.
-        entities[i] = new Critter();
-        entities[i]->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
-        entities[i]->SetTexture(&t_critter);
+        critters[i] = new Critter();
+        critters[i]->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
+        critters[i]->SetTexture(&t_critter);
     }
 
     float timer = 1;
@@ -80,19 +79,19 @@ int main(int argc, char* argv[])
 
         for (int i = 0; i < CRITTER_COUNT; i++)
         {
-            if (!entities[i]->IsDead())
+            if (!critters[i]->IsDead())
             {
-                entities[i]->Update(delta); //Update each critter (dirty flags will be cleared during update).
-                entities[i]->WallBounce(screenWidth, screenHeight); //Check each critter against screen bounds.
+                critters[i]->Update(delta); //Update each critter (dirty flags will be cleared during update).
+                critters[i]->WallBounce(screenWidth, screenHeight); //Check each critter against screen bounds.
                 //Loop through all other critters.
                 for (int j = 0; j < CRITTER_COUNT; j++) {
-                    if (i != j && !entities[i]->IsDirty() && !entities[j]->IsDead()) // note: the other critter (j) could be dirty - that's OK
+                    if (i != j && !critters[i]->IsDirty() && !critters[j]->IsDead()) // note: the other critter (j) could be dirty - that's OK
                     {
                         //Check every critter against every other critter.
-                        if (entities[i]->Collides(entities[j]))
+                        if (critters[i]->Collides(critters[j]))
                         {
                             //Break the second loop on collision (still looping through i).
-                            entities[i]->OnCollide(entities[j], MAX_VELOCITY);
+                            critters[i]->OnCollide(critters[j], MAX_VELOCITY);
                             break;
                         }
                     }
@@ -109,14 +108,14 @@ int main(int argc, char* argv[])
 
             for (int i = 0; i < CRITTER_COUNT; i++)
             {
-                if (entities[i]->IsDead())
+                if (critters[i]->IsDead())
                 {
                     Vector2 normal = Vector2Normalize(destroyer->GetVelocity());
 
                     // get a position behind the destroyer, and far enough away that the critter won't bump into it again
                     Vector2 pos = destroyer->GetPosition();
                     pos = Vector2Add(pos, Vector2Scale(normal, -50));
-                    entities[i]->Init(pos, Vector2Scale(normal, -MAX_VELOCITY));
+                    critters[i]->Init(pos, Vector2Scale(normal, -MAX_VELOCITY));
                     break;
                 }
             }
@@ -130,12 +129,12 @@ int main(int argc, char* argv[])
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-        ClearBackground(RAYWHITE);
+        ClearBackground(DARKGRAY);
 
         //Draw the critters and destroyer.
         for (int i = 0; i < CRITTER_COUNT; i++)
         {
-            entities[i]->Draw();
+            critters[i]->Draw();
         }
 
         DrawFPS(10, 10);
@@ -147,7 +146,7 @@ int main(int argc, char* argv[])
     //Cleanup
     for (int i = 0; i < CRITTER_COUNT; i++)
     {
-        delete entities[i];
+        delete critters[i];
     }
     //Only 2 textures need to be unloaded, because only 2 were loaded in the first place.
     UnloadTexture(t_critter);

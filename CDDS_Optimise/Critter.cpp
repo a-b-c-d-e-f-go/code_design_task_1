@@ -92,7 +92,7 @@ void Critter::Draw()
 }
 
 
-bool Critter::Collides(IEntity* other)
+bool Critter::Collides(Critter* other)
 {
 	//AABB Collision (Apparently slower???)
 	/*float x_dist = abs(m_position.x - other.m_position.x);
@@ -101,11 +101,11 @@ bool Critter::Collides(IEntity* other)
 	float y_collide = m_hHeight + other.m_hHeight;
 	return (x_dist < x_collide) && (y_dist < y_collide);*/
 
-	float dist = Vector2Distance(m_position, other->GetPosition());
-	return (dist < m_hWidth + other->GetHWidth());
+	float dist = Vector2Distance(m_position, other->m_position);
+	return (dist < m_hWidth + other->m_hWidth);
 }
 
-void Critter::OnCollide(IEntity* other, const int MAX_VELOCITY)
+void Critter::OnCollide(Critter* other, const int MAX_VELOCITY)
 {
 	if (Type() == other->Type())
 	{
