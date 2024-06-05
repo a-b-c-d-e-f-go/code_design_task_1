@@ -8,6 +8,8 @@ Critter::Critter()
 	m_position = Vector2{ 0, 0 };
 	m_velocity = Vector2{ 0, 0 };
 	m_isLoaded = false;
+	m_isDirty = true;
+	m_texture = nullptr;
 }
 
 Critter::~Critter()
@@ -30,8 +32,8 @@ void Critter::Spawn(const int screenWidth, const int screenHeight, const int MAX
 	Vector2 velocity = { (MAX_VELOCITY * cos(r)), (MAX_VELOCITY * sin(r)) }; //Math for a vector of (MAX_VELOCITY,0) being rotated by r. Everything normally multiplied by zero is removed.
 
 	//Spawn randomly within the screen bounds.
-	float spawnX = (float)(5 + (rand() % screenWidth - 10));
-	float spawnY = (float)(5 + (rand() % screenHeight - 10));
+	float spawnX = (float)(rand() % screenWidth);
+	float spawnY = (float)(rand() % screenHeight);
 
 	Init({ spawnX , spawnY }, velocity);
 }
@@ -62,25 +64,25 @@ void Critter::Update(float dt)
 
 void Critter::WallBounce(const int screenWidth, const int screenHeight) //Bounce off the edges of the screen.
 {
-	if (GetX() < GetHWidth()) {
-		SetX(GetHWidth());
-		SetVelocity(Vector2{ -GetVelocity().x, GetVelocity().y });
-		SetDirty();
+	if (m_position.x < m_hWidth) { //Left Wall
+		m_position.x = m_hWidth; //Clamp x position.
+		m_velocity.x *= -1; //Invert x velocity.
+		m_isDirty = true; //Set dirty.
 	}
-	else if (GetX() > (float)screenWidth - GetHWidth()) {
-		SetX((float)screenWidth - GetHWidth());
-		SetVelocity(Vector2{ -GetVelocity().x, GetVelocity().y });
-		SetDirty();
+	else if (m_position.x > (float)screenWidth - m_hWidth) { //Right Wall
+		m_position.x = (float)screenWidth - m_hWidth; //Clamp x position.
+		m_velocity.x *= -1; //Invert x velocity.
+		m_isDirty = true; //Set dirty.
 	}
-	else if (GetY() < GetHHeight()) {
-		SetY(GetHHeight());
-		SetVelocity(Vector2{ GetVelocity().x, -GetVelocity().y });
-		SetDirty();
+	else if (m_position.y < m_hHeight) { //Top Wall
+		m_position.y = m_hHeight; //Clamp y position.
+		m_velocity.y *= -1; //Invert y velocity.
+		m_isDirty = true; //Set dirty.
 	}
-	else if (GetY() > (float)screenHeight - GetHHeight()) {
-		SetY((float)screenHeight - GetHHeight());
-		SetVelocity(Vector2{ GetVelocity().x, -GetVelocity().y });
-		SetDirty();
+	else if (m_position.y > (float)screenHeight - m_hHeight) { //Bottom Wall
+		m_position.y = (float)screenHeight - m_hHeight; //Clamp y position
+		m_velocity.y *= -1; //Invert y velocity.
+		m_isDirty = true; //Set dirty.
 	}
 }
 
@@ -92,12 +94,12 @@ void Critter::Draw()
 
 bool Critter::Collides(Critter& other) //Unused
 {
-	/*float x_dist = abs(GetX() - other.GetX());
-	float y_dist = abs(GetY() - other.GetY());
-	float x_collide = GetHWidth() + other.GetHWidth();
-	float y_collide = GetHHeight() + other.GetHHeight();
+	/*float x_dist = abs(m_position.x - other.m_position.x);
+	float y_dist = abs(m_position.y - other.m_position.y);
+	float x_collide = m_hWidth + other.m_hWidth;
+	float y_collide = m_hHeight + other.m_hHeight;
 	return (x_dist < x_collide) && (y_dist < y_collide);*/
 
-	float dist = Vector2Distance(GetPosition(), other.GetPosition());
-	return (dist < GetHWidth() + other.GetHWidth());
+	float dist = Vector2Distance(m_position, other.m_position);
+	return (dist < m_hWidth + other.m_hWidth);
 }
