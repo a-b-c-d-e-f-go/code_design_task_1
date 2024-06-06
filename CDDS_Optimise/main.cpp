@@ -25,6 +25,7 @@
 #include <time.h>
 #include "Critter.h"
 #include "Destroyer.h"
+#include "QuadTree.h"
 
 #define destroyer critters[0] //For readability.
 
@@ -47,23 +48,28 @@ int main(int argc, char* argv[])
     const Texture2D t_destroyer = LoadTexture("res/9.png");
 
     //Const variables for initializing critters.
-    const int CRITTER_COUNT = 500;
+    const int CRITTER_COUNT = 50;
     const int MAX_VELOCITY = 80;
 
-    Critter* critters[CRITTER_COUNT]; //Takes up only as much memory as it needs to.
+    Critter* critters[CRITTER_COUNT]{}; //Takes up only as much memory as it needs to.
+    QuadTree map = QuadTree(AABB(Vector2{ 0, 0 }, Vector2{ (float)screenWidth, (float)screenHeight }));
+    map.Subdivide(2);
 
     //Initialize the destroyer.
     critters[0] = new Destroyer(); //New destroyer at 0.
     destroyer->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
     destroyer->SetTexture(&t_destroyer);
+    map.Add(destroyer);
 
     //Initialize critters.
     for (int i = 1; i < CRITTER_COUNT; i++)
     {
         //Create a critter in a random location and load its texture.
-        critters[i] = new Critter();
-        critters[i]->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
-        critters[i]->SetTexture(&t_critter);
+        Critter* c = new Critter();
+        critters[i] = c;
+        c->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
+        c->SetTexture(&t_critter);
+        map.Add(c);
     }
 
     float timer = 1;
@@ -129,13 +135,13 @@ int main(int argc, char* argv[])
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-        ClearBackground(DARKGRAY);
-
+        ClearBackground(RAYWHITE);
+        map.Draw();
         //Draw the critters and destroyer.
-        for (int i = 0; i < CRITTER_COUNT; i++)
+        /*for (int i = 0; i < CRITTER_COUNT; i++)
         {
             critters[i]->Draw();
-        }
+        }*/
 
         DrawFPS(10, 10);
 
