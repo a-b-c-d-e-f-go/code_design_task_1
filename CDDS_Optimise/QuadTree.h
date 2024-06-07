@@ -13,7 +13,7 @@ public:
 	};
 
 	QuadTree();
-	QuadTree(AABB _bounds);
+	QuadTree(AABB _bounds, int _depth = 0);
 	~QuadTree();
 
 	
@@ -26,6 +26,7 @@ public:
 
 private:
 	static const int capacity = 51;
+	int depth;
 	AABB bounds;
 	QuadTree** children; //Pointer to an array.
 	Critter** objects; //Pointer to an array.

@@ -21,6 +21,7 @@
 
 #include "raylib.h"
 #include "raymath.h"
+#include <iostream>
 #include <random>
 #include <time.h>
 #include "Critter.h"
@@ -52,8 +53,9 @@ int main(int argc, char* argv[])
     const int MAX_VELOCITY = 80;
 
     Critter* critters[CRITTER_COUNT]{}; //Takes up only as much memory as it needs to.
-    QuadTree map = QuadTree(AABB(Vector2{ 0, 0 }, Vector2{ (float)screenWidth, (float)screenHeight }));
-    map.Subdivide(2);
+    //QuadTree map = QuadTree(AABB(Vector2{ 0, 0 }, Vector2{ (float)screenWidth, (float)screenHeight }));
+    QuadTree map = QuadTree(AABB(Vector2{ (float)screenWidth / 2.0f, (float)screenHeight / 2.0f }, Vector2{ (float)screenWidth / 2.0f, (float)screenHeight / 2.0f }));
+    map.Subdivide(1);
 
     //Initialize the destroyer.
     critters[0] = new Destroyer(); //New destroyer at 0.
@@ -69,6 +71,7 @@ int main(int argc, char* argv[])
         critters[i] = c;
         c->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
         c->SetTexture(&t_critter);
+        std::cout << "\n----------NEW CRITTER----------\n";
         map.Add(c);
     }
 

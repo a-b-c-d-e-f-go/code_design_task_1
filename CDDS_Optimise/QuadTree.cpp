@@ -1,4 +1,5 @@
 #include "QuadTree.h"
+#include <iostream>
 
 #define ifv(ptr) if (ptr != nullptr) //If valid (for pointers).
 #define ifn(ptr) if (ptr == nullptr) //If null (for pointers).
@@ -16,13 +17,13 @@ ifv (arr) {									\
 	arr = nullptr;							\
 }
 
-QuadTree::QuadTree() : children(nullptr), objects(nullptr)
+QuadTree::QuadTree() : depth(0), children(nullptr), objects(nullptr)
 {
 	bounds.m_halfSize.x = 1280.0f / 2.0f;
 	bounds.m_halfSize.y = 720.0f / 2.0f;
 	bounds.m_centre = bounds.m_halfSize;
 }
-QuadTree::QuadTree(AABB _bounds) : bounds(_bounds), children(nullptr), objects(nullptr)
+QuadTree::QuadTree(AABB _bounds, int _depth) : bounds(_bounds), depth(_depth), children(nullptr), objects(nullptr)
 {
 
 }
@@ -34,22 +35,25 @@ QuadTree::~QuadTree()
 
 bool QuadTree::Add(Critter* _critter)
 {
-	//if (!bounds.contains(_critter->GetPosition(), _critter->GetHWidth())) //TODO: Make bounds work.
-	//{
-	//	return false;
-	//}
-
-	
+	std::cout << "Attempting to add critter " << *_critter << " to node " << bounds << " at depth " << depth << ".\n";
+	if (!bounds.contains(_critter->GetPosition(), _critter->GetHWidth())) //TODO: Make bounds work.
+	{
+		std::cout << "FAILED - Outside bounds.\n";
+		return false;
+	}
 	ifv (children) { //If the node has children (is subdivided), attempt to add the critter to them.
 		//Find a child node and add the Critter there.
 		loop(i, 0, 4) {
-			return children[i]->Add(_critter);
+			std::cout << "Recursing through children.\n";
+			if (children[i]->Add(_critter)) { return true; }
 		}
 	}
 	else //Otherwise, add the critter to this node.
 	{
+		
 		ifn(objects) //If the objects array is empty.
 		{
+			//Allocate memory for a new array.
 			objects = new Critter * [capacity];
 			memset(objects, 0, sizeof(Critter*) * capacity);
 		}
@@ -57,11 +61,13 @@ bool QuadTree::Add(Critter* _critter)
 			loop(i, 0, capacity) { //Step through the array and look for somewhere to put the Critter.
 				ifn(objects[i]) {
 					objects[i] = _critter;
+					std::cout << "SUCCESS\n";
 					return true;
 				}
 			}
 		}
 	}
+	std::cout << "FAILED - This should never happen.\n\n";
 	return false; //This should never happen
 }
 
@@ -71,7 +77,7 @@ void QuadTree::Clear() //Remove all critters from this node its children, and so
 }
 
 //Split this node into 4 children, and do the same to those children, and so forth, as many times as given by "_recursion".
-void QuadTree::Subdivide(int _recursion) //eg. Subdivide(2) splits the node into 16.
+void QuadTree::Subdivide(int _recursion) //eg. Subdivide(2) splits the node into 64.
 {
 	children = new QuadTree * [4];
 
@@ -80,16 +86,16 @@ void QuadTree::Subdivide(int _recursion) //eg. Subdivide(2) splits the node into
 
 	//Set position of children to the 4 corners of this node.
 	Vector2 qCentre{ bounds.m_centre.x - qSize.x, bounds.m_centre.y - qSize.y };
-	children[TOP_LEFT] = new QuadTree(AABB(qCentre, qSize));
+	children[TOP_LEFT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
 
 	qCentre = Vector2{ bounds.m_centre.x + qSize.x, bounds.m_centre.y - qSize.y };
-	children[TOP_RIGHT] = new QuadTree(AABB(qCentre, qSize));
+	children[TOP_RIGHT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
 
 	qCentre = Vector2{ bounds.m_centre.x - qSize.x, bounds.m_centre.y + qSize.y };
-	children[BOTTOM_LEFT] = new QuadTree(AABB(qCentre, qSize));
+	children[BOTTOM_LEFT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
 
 	qCentre = Vector2{ bounds.m_centre.x + qSize.x, bounds.m_centre.y + qSize.y };
-	children[BOTTOM_RIGHT] = new QuadTree(AABB(qCentre, qSize));
+	children[BOTTOM_RIGHT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
 
 	//Send objects to children.
 	ifv (objects) {
@@ -146,7 +152,8 @@ void QuadTree::Draw()
 		loop (i, 0, capacity) {
 			ifv (objects[i])
 			{
-				objects[i]->Draw();
+				Color c = Color{ (unsigned char)(bounds.m_centre.x * (255 / 800)), (unsigned char)(bounds.m_centre.y * (255 / 450)), 255, 255 };
+				objects[i]->Draw(c);
 			}
 		}
 	}

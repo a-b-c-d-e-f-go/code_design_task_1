@@ -3,6 +3,9 @@
 
 #include "raylib.h"
 #include <random>
+#include <iostream>
+
+using namespace std;
 
 class Critter
 {
@@ -28,7 +31,7 @@ public:
 	void Destroy();
 	void Update(float dt);
 	void WallBounce(const int screenWidth, const int screenHeight);
-	void Draw();
+	void Draw(Color c = WHITE);
 
 	bool Collides(Critter* other);
 	virtual void OnCollide(Critter* other, const int MAX_VELOCITY);
@@ -53,5 +56,9 @@ public:
 
 	const bool IsDead() const { return m_isLoaded == false; }
 
+	friend ostream& operator<<(ostream& os, const Critter& b)
+	{
+		os << "(" << b.GetX() << "," << b.GetY() << ")";
+		return os;
+	};
 };
-

@@ -86,9 +86,9 @@ void Critter::WallBounce(const int screenWidth, const int screenHeight) //Bounce
 	}
 }
 
-void Critter::Draw()
+void Critter::Draw(Color c)
 {
-	if (m_isLoaded) { DrawTexture(*m_texture, (int)m_position.x - m_hWidth, (int)m_position.y - m_hHeight, WHITE); }
+	if (m_isLoaded) { DrawTexture(*m_texture, (int)m_position.x - m_hWidth, (int)m_position.y - m_hHeight, c); }
 }
 
 
