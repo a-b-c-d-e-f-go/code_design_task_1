@@ -23,12 +23,10 @@ public:
 	void Draw();
 
 private:
-	bool AddHere(Critter* _critter);
-	bool ReverseAdd(Critter* _critter);
-	static const int capacity = 51;
+	static const int capacity = 5;
 	int depth;
 	AABB bounds;
 	QuadTree** children; //Pointer to an array.
 	Critter** objects; //Pointer to an array.
-	QuadTree* parent = nullptr;
+	QuadTree* root = this;
 };

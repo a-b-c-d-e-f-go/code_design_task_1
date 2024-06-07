@@ -52,7 +52,6 @@ int main(int argc, char* argv[])
 
     //QuadTree map = QuadTree(AABB(Vector2{ 0, 0 }, Vector2{ (float)screenWidth, (float)screenHeight }));
     QuadTree map = QuadTree(AABB(Vector2{ (float)screenWidth / 2.0f, (float)screenHeight / 2.0f }, Vector2{ (float)screenWidth / 2.0f, (float)screenHeight / 2.0f }));
-    map.Subdivide(1); //Subdivide with 1 extra recursion (the children will also subdivide, leaving us with 16 nodes).
 
     //Initialize the destroyer.
     Critter* destroyer = new Destroyer(); //Pointer to the destroyer.

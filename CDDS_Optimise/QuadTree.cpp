@@ -55,44 +55,28 @@ bool QuadTree::Add(Critter* _critter)
 	}
 	else //Otherwise, add the critter to this node.
 	{
-		return AddHere(_critter);
+		ifn(objects) //If the objects array is empty.
+		{
+			//Allocate memory for a new array.
+			objects = new Critter * [capacity];
+			memset(objects, 0, sizeof(Critter*) * capacity);
+		}
+		ifn(objects[capacity - 1]) { //If the objects array has at least 1 free space.
+			loop(i, 0, capacity) { //Step through the array and look for somewhere to put the Critter.
+				ifn(objects[i]) {
+					objects[i] = _critter;
+					std::cout << "SUCCESS\n";
+					return true;
+				}
+			}
+		}
+		else
+		{
+			Subdivide();
+		}
 	}
 	std::cout << "RETURNED " << re << "\n";
 	return re;
-}
-
-bool QuadTree::AddHere(Critter* _critter) //Add the critter to this node.
-{
-	ifn(objects) //If the objects array is empty.
-	{
-		//Allocate memory for a new array.
-		objects = new Critter * [capacity];
-		memset(objects, 0, sizeof(Critter*) * capacity);
-	}
-	ifn(objects[capacity - 1]) { //If the objects array has at least 1 free space.
-		loop(i, 0, capacity) { //Step through the array and look for somewhere to put the Critter.
-			ifn(objects[i]) {
-				objects[i] = _critter;
-				std::cout << "SUCCESS\n";
-				return true;
-			}
-		}
-	}
-	std::cout << "ADDHERE FAILED - This should never happen.\n\n";
-	return false; //This should never happen
-}
-
-bool QuadTree::ReverseAdd(Critter* _critter)
-{
-	ifv (parent)
-	{
-		if (!bounds.contains(_critter->GetPosition(), _critter->GetHWidth())) //Not within bounds of this node.
-		{
-			cout << "GOING BACK\n";
-			return parent->ReverseAdd(_critter);
-		}
-	}
-	return Add(_critter);
 }
 
 //Split this node into 4 children, and do the same to those children, and so forth, as many times as given by "_recursion".
@@ -106,19 +90,19 @@ void QuadTree::Subdivide(int _recursion) //eg. Subdivide(2) splits the node into
 	//Set position of children to the 4 corners of this node.
 	Vector2 qCentre{ bounds.m_centre.x - qSize.x, bounds.m_centre.y - qSize.y };
 	children[TOP_LEFT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
-	children[TOP_LEFT]->parent = this;
+	children[TOP_LEFT]->root = root;
 
 	qCentre = Vector2{ bounds.m_centre.x + qSize.x, bounds.m_centre.y - qSize.y };
 	children[TOP_RIGHT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
-	children[TOP_RIGHT]->parent = this;
+	children[TOP_RIGHT]->root = root;
 
 	qCentre = Vector2{ bounds.m_centre.x - qSize.x, bounds.m_centre.y + qSize.y };
 	children[BOTTOM_LEFT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
-	children[BOTTOM_LEFT]->parent = this;
+	children[BOTTOM_LEFT]->root = root;
 
 	qCentre = Vector2{ bounds.m_centre.x + qSize.x, bounds.m_centre.y + qSize.y };
 	children[BOTTOM_RIGHT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
-	children[BOTTOM_RIGHT]->parent = this;
+	children[BOTTOM_RIGHT]->root = root;
 
 	//Send objects to children.
 	ifv (objects) {
@@ -178,14 +162,6 @@ void QuadTree::Update(const float& dt, const int& tick)
 								}
 							}
 						}
-					}
-					else //Critter is not within this node.
-					{
-						//Remove the critter from this node and add it to the quad tree again.
-						Critter* ptr = objects[i];
-						objects[i] = nullptr;
-						cout << "\n----------REVERSE ADD----------\n";
-						ReverseAdd(ptr);
 					}
 				}
 			}
