@@ -18,16 +18,17 @@ public:
 
 	
 	bool Add(Critter* _critter);
-	void Clear();
 	void Subdivide(int _recursion = 0);
-
-	//void Update(float deltaTime);
+	void Update(const float& dt, const int& tick);
 	void Draw();
 
 private:
+	bool AddHere(Critter* _critter);
+	bool ReverseAdd(Critter* _critter);
 	static const int capacity = 51;
 	int depth;
 	AABB bounds;
 	QuadTree** children; //Pointer to an array.
 	Critter** objects; //Pointer to an array.
+	QuadTree* parent = nullptr;
 };

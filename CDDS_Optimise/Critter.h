@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "raylib.h"
 #include <random>
 #include <iostream>
@@ -16,10 +15,12 @@ protected:
 	const Texture2D* m_texture;
 
 	bool m_isLoaded;
-	bool m_isDirty;		// indicates if we've already processed a collision response for this critter
+	bool m_isDirty; //Already processed a collision response.
+	int m_prevTick;
 
 	int m_hWidth = 0;
 	int m_hHeight = 0;
+	
 	
 public:
 	Critter();
@@ -29,7 +30,7 @@ public:
 	void Spawn(const int screenWidth, const int screenHeight, const int MAX_VELOCITY);
 	virtual void SetTexture(const Texture2D* texture);
 	void Destroy();
-	void Update(float dt);
+	void Update(const float& dt, const int& tick);
 	void WallBounce(const int screenWidth, const int screenHeight);
 	void Draw(Color c = WHITE);
 

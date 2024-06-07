@@ -29,14 +29,15 @@ QuadTree::QuadTree(AABB _bounds, int _depth) : bounds(_bounds), depth(_depth), c
 }
 QuadTree::~QuadTree()
 {
+	del_arr(objects, capacity);
 	del_arr(children, 4);
-	//del_arr(objects, capacity);
 }
 
 bool QuadTree::Add(Critter* _critter)
 {
+	bool re = false;
 	std::cout << "Attempting to add critter " << *_critter << " to node " << bounds << " at depth " << depth << ".\n";
-	if (!bounds.contains(_critter->GetPosition(), _critter->GetHWidth())) //TODO: Make bounds work.
+	if (!bounds.contains(_critter->GetPosition(), _critter->GetHWidth())) //Not within bounds.
 	{
 		std::cout << "FAILED - Outside bounds.\n";
 		return false;
@@ -45,35 +46,53 @@ bool QuadTree::Add(Critter* _critter)
 		//Find a child node and add the Critter there.
 		loop(i, 0, 4) {
 			std::cout << "Recursing through children.\n";
-			if (children[i]->Add(_critter)) { return true; }
+			if (children[i]->Add(_critter))
+			{
+				return true;
+				re = true; //Return true at the end.
+			}
 		}
 	}
 	else //Otherwise, add the critter to this node.
 	{
-		
-		ifn(objects) //If the objects array is empty.
-		{
-			//Allocate memory for a new array.
-			objects = new Critter * [capacity];
-			memset(objects, 0, sizeof(Critter*) * capacity);
-		}
-		ifn(objects[capacity - 1]) { //If the objects array has at least 1 free space.
-			loop(i, 0, capacity) { //Step through the array and look for somewhere to put the Critter.
-				ifn(objects[i]) {
-					objects[i] = _critter;
-					std::cout << "SUCCESS\n";
-					return true;
-				}
+		return AddHere(_critter);
+	}
+	std::cout << "RETURNED " << re << "\n";
+	return re;
+}
+
+bool QuadTree::AddHere(Critter* _critter) //Add the critter to this node.
+{
+	ifn(objects) //If the objects array is empty.
+	{
+		//Allocate memory for a new array.
+		objects = new Critter * [capacity];
+		memset(objects, 0, sizeof(Critter*) * capacity);
+	}
+	ifn(objects[capacity - 1]) { //If the objects array has at least 1 free space.
+		loop(i, 0, capacity) { //Step through the array and look for somewhere to put the Critter.
+			ifn(objects[i]) {
+				objects[i] = _critter;
+				std::cout << "SUCCESS\n";
+				return true;
 			}
 		}
 	}
-	std::cout << "FAILED - This should never happen.\n\n";
+	std::cout << "ADDHERE FAILED - This should never happen.\n\n";
 	return false; //This should never happen
 }
 
-void QuadTree::Clear() //Remove all critters from this node its children, and so forth.
+bool QuadTree::ReverseAdd(Critter* _critter)
 {
-
+	ifv (parent)
+	{
+		if (!bounds.contains(_critter->GetPosition(), _critter->GetHWidth())) //Not within bounds of this node.
+		{
+			cout << "GOING BACK\n";
+			return parent->ReverseAdd(_critter);
+		}
+	}
+	return Add(_critter);
 }
 
 //Split this node into 4 children, and do the same to those children, and so forth, as many times as given by "_recursion".
@@ -87,15 +106,19 @@ void QuadTree::Subdivide(int _recursion) //eg. Subdivide(2) splits the node into
 	//Set position of children to the 4 corners of this node.
 	Vector2 qCentre{ bounds.m_centre.x - qSize.x, bounds.m_centre.y - qSize.y };
 	children[TOP_LEFT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
+	children[TOP_LEFT]->parent = this;
 
 	qCentre = Vector2{ bounds.m_centre.x + qSize.x, bounds.m_centre.y - qSize.y };
 	children[TOP_RIGHT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
+	children[TOP_RIGHT]->parent = this;
 
 	qCentre = Vector2{ bounds.m_centre.x - qSize.x, bounds.m_centre.y + qSize.y };
 	children[BOTTOM_LEFT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
+	children[BOTTOM_LEFT]->parent = this;
 
 	qCentre = Vector2{ bounds.m_centre.x + qSize.x, bounds.m_centre.y + qSize.y };
 	children[BOTTOM_RIGHT] = new QuadTree(AABB(qCentre, qSize), depth + 1);
+	children[BOTTOM_RIGHT]->parent = this;
 
 	//Send objects to children.
 	ifv (objects) {
@@ -125,21 +148,74 @@ void QuadTree::Subdivide(int _recursion) //eg. Subdivide(2) splits the node into
 	}
 }
 
+void QuadTree::Update(const float& dt, const int& tick)
+{
+	const int MAX_VELOCITY = 80; //TODO: REMOVE THIS AND MAKE A GLOBAL VARIABLE OR SMTH
+	ifv (objects)
+	{
+		loop (i, 0, capacity)
+		{
+			ifv (objects[i])
+			{
+				if (!objects[i]->IsDead()) //Alive
+				{
+					if (bounds.contains(objects[i]->GetPosition(), objects[i]->GetHWidth())) //Critter is within this node.
+					{
+						objects[i]->Update(dt, tick); //Update each critter (dirty flags will be cleared during update).
+						//Loop through all other critters in the same node.
+						for (int j = 0; j < capacity; j++) {
+							ifv(objects[j])
+							{
+								if (i != j && !objects[i]->IsDirty() && !objects[j]->IsDead()) // note: the other critter (j) could be dirty - that's OK
+								{
+									//Check every critter against every other critter.
+									if (objects[i]->Collides(objects[j]))
+									{
+										//Break the second loop on collision (still looping through i).
+										objects[i]->OnCollide(objects[j], MAX_VELOCITY);
+										break;
+									}
+								}
+							}
+						}
+					}
+					else //Critter is not within this node.
+					{
+						//Remove the critter from this node and add it to the quad tree again.
+						Critter* ptr = objects[i];
+						objects[i] = nullptr;
+						cout << "\n----------REVERSE ADD----------\n";
+						ReverseAdd(ptr);
+					}
+				}
+			}
+		}
+	}
+
+	ifv(children)
+	{
+		children[TOP_LEFT]->Update(dt, tick);
+		children[TOP_RIGHT]->Update(dt, tick);
+		children[BOTTOM_LEFT]->Update(dt, tick);
+		children[BOTTOM_RIGHT]->Update(dt, tick);
+	}
+}
+
 void QuadTree::Draw()
 {
 	//Draw the box representing this node's bounds (for debug purposes).
 	DrawLine(
-		bounds.m_centre.x - bounds.m_halfSize.x, bounds.m_centre.y - bounds.m_halfSize.y,
-		bounds.m_centre.x + bounds.m_halfSize.x, bounds.m_centre.y - bounds.m_halfSize.y, RED);
+		(int)bounds.m_centre.x - (int)bounds.m_halfSize.x, (int)bounds.m_centre.y - (int)bounds.m_halfSize.y,
+		(int)bounds.m_centre.x + (int)bounds.m_halfSize.x, (int)bounds.m_centre.y - (int)bounds.m_halfSize.y, RED);
 	DrawLine(
-		bounds.m_centre.x - bounds.m_halfSize.x, bounds.m_centre.y + bounds.m_halfSize.y - 1,
-		bounds.m_centre.x + bounds.m_halfSize.x, bounds.m_centre.y + bounds.m_halfSize.y - 1, RED);
+		(int)bounds.m_centre.x - (int)bounds.m_halfSize.x, (int)bounds.m_centre.y + (int)bounds.m_halfSize.y - 1,
+		(int)bounds.m_centre.x + (int)bounds.m_halfSize.x, (int)bounds.m_centre.y + (int)bounds.m_halfSize.y - 1, RED);
 	DrawLine(
-		bounds.m_centre.x - bounds.m_halfSize.x + 1, bounds.m_centre.y + bounds.m_halfSize.y,
-		bounds.m_centre.x - bounds.m_halfSize.x + 1, bounds.m_centre.y - bounds.m_halfSize.y, RED);
+		(int)bounds.m_centre.x - (int)bounds.m_halfSize.x + 1, (int)bounds.m_centre.y + (int)bounds.m_halfSize.y,
+		(int)bounds.m_centre.x - (int)bounds.m_halfSize.x + 1, (int)bounds.m_centre.y - (int)bounds.m_halfSize.y, RED);
 	DrawLine(
-		bounds.m_centre.x + bounds.m_halfSize.x, bounds.m_centre.y + bounds.m_halfSize.y,
-		bounds.m_centre.x + bounds.m_halfSize.x, bounds.m_centre.y - bounds.m_halfSize.y, RED);
+		(int)bounds.m_centre.x + (int)bounds.m_halfSize.x, (int)bounds.m_centre.y + (int)bounds.m_halfSize.y,
+		(int)bounds.m_centre.x + (int)bounds.m_halfSize.x, (int)bounds.m_centre.y - (int)bounds.m_halfSize.y, RED);
 
 	//Draw all the child nodes, if applicable.
 	ifv (children) {
@@ -152,7 +228,7 @@ void QuadTree::Draw()
 		loop (i, 0, capacity) {
 			ifv (objects[i])
 			{
-				Color c = Color{ (unsigned char)(bounds.m_centre.x * (255 / 800)), (unsigned char)(bounds.m_centre.y * (255 / 450)), 255, 255 };
+				Color c = Color{ (unsigned char)(bounds.m_centre.x * 255 * 450), (unsigned char)(bounds.m_centre.y * 255 * 800), 128, 255 };
 				objects[i]->Draw(c);
 			}
 		}

@@ -9,6 +9,7 @@ Critter::Critter()
 	m_velocity = Vector2{ 0, 0 };
 	m_isLoaded = false;
 	m_isDirty = true;
+	m_prevTick = 0;
 	m_texture = nullptr;
 }
 
@@ -51,15 +52,17 @@ void Critter::Destroy()
 	m_isLoaded = false;
 }
 
-void Critter::Update(float dt)
+void Critter::Update(const float& dt, const int& tick)
 {
-	if (m_isLoaded == false)
+	if (tick == m_prevTick || !m_isLoaded)
 		return;
 
 	m_position.x += m_velocity.x * dt;
 	m_position.y += m_velocity.y * dt;
+	WallBounce(800, 450);
 
 	m_isDirty = false;
+	m_prevTick = tick;
 }
 
 void Critter::WallBounce(const int screenWidth, const int screenHeight) //Bounce off the edges of the screen.
