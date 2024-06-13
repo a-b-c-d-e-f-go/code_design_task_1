@@ -23,8 +23,8 @@ ifv (arr) {									\
 #define forxy loop(x, 0, MAP_COLUMNS) { loop(y, 0, MAP_ROWS) {
 #define _forxy }}
 
-#define n(x, y, c) nodes[x][y]->Add(c);
-#define nodes_3x3_add(x, y, c) n(x - 1, y - 1, c) n(x, y - 1, c) n(x + 1, y - 1, c) n(x - 1, y, c) n(x, y, c) n(x + 1, y, c) n(x - 1, y + 1, c) n(x, y + 1, c) n(x + 1, y + 1, c)
+//define n(x, y, c) nodes[x][y]->Add(c);
+//define nodes_3x3_add(x, y, c) n(x - 1, y - 1, c) n(x, y - 1, c) n(x + 1, y - 1, c) n(x - 1, y, c) n(x, y, c) n(x + 1, y, c) n(x - 1, y + 1, c) n(x, y + 1, c) n(x + 1, y + 1, c)
 
 using namespace std;
 

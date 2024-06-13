@@ -8,8 +8,8 @@ struct Map
 	Map();
 	~Map();
 
-	bool Add(Critter* _critter);
-	void Collisions();
+	void Collisions(Critter* _critter);
+	void Check(Critter* _critter, size_t _x, size_t _y);
 	void Reset();
 	void Draw();
 	void Cleanup();

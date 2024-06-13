@@ -3,6 +3,6 @@
 class Destroyer : public Critter
 {
 public:
-	virtual void OnCollide(Critter* other, const int MAX_VELOCITY) override;
+	virtual void OnCollide(Critter* other) override;
 	virtual char Type() override { return 'd'; }
 };

@@ -13,27 +13,23 @@ Map::~Map()
 
 }
 
-bool Map::Add(Critter* _critter)
+void Map::Collisions(Critter* _critter)
 {
 	ifv(_critter)
 	{
 		//Coordinates of the critter truncated into unsigned integers from 0-15.
-		size_t target_x = (size_t)_critter->GetX() / NODE_WIDTH;
-		size_t target_y = (size_t)_critter->GetY() / NODE_HEIGHT;
-		//nodes_3x3_add(target_x, target_y, _critter);
-		if(target_x < MAP_COLUMNS && target_y < MAP_ROWS)
-		{
-			return nodes[target_x][target_y]->Add(_critter);
-		}
+		size_t tx = (size_t)_critter->GetX() / NODE_WIDTH;
+		size_t ty = (size_t)_critter->GetY() / NODE_HEIGHT;
+		Check(_critter, tx, ty);
 	}
-	return false;
 }
 
-void Map::Collisions()
+void Map::Check(Critter* _critter, size_t _x, size_t _y)
 {
-	forxy
-		nodes[x][y]->Collisions();
-	_forxy
+	if (_x < MAP_COLUMNS && _y < MAP_ROWS)
+	{
+		nodes[_x][_y]->Collisions(_critter);
+	}
 }
 
 void Map::Reset()
@@ -47,6 +43,7 @@ void Map::Draw()
 {
 	forxy
 		nodes[x][y]->Draw();
+		nodes[x][y]->Reset();
 	_forxy
 }
 

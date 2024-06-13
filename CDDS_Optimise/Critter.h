@@ -26,15 +26,15 @@ public:
 	~Critter();
 
 	void Init(Vector2 position, Vector2 velocity);
-	void Spawn(const int screenWidth, const int screenHeight, const int MAX_VELOCITY);
+	void Spawn();
 	virtual void SetTexture(const Texture2D* texture);
 	void Destroy();
-	void Update(float dt);
 	void WallBounce();
+	void Update(float dt);
 	void Draw(Color c = WHITE);
 
 	bool Collides(Critter* other);
-	virtual void OnCollide(Critter* other, const int MAX_VELOCITY);
+	virtual void OnCollide(Critter* other);
 	virtual char Type() { return 'c'; }
 
 	const float GetX() const { return m_position.x; }

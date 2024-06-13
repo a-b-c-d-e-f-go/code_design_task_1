@@ -12,8 +12,7 @@ struct Node
 	Node();
 	Node(AABB _bounds);
 	~Node();
-	bool Add(Critter* _critter);
-	void Collisions();
+	void Collisions(Critter* _critter);
 	void Reset();
 	void Draw();
 };

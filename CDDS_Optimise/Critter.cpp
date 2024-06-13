@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include <random>
+#include <iostream>
 
 Critter::Critter()
 {
@@ -26,7 +27,7 @@ void Critter::Init(Vector2 position, Vector2 velocity)
 	m_isLoaded = true;
 }
 
-void Critter::Spawn(const int SCREEN_WIDTH, const int SCREEN_HEIGHT, const int MAX_VELOCITY) //Randomly spawn on the screen.
+void Critter::Spawn() //Randomly spawn on the screen.
 {
 	//Create a direction vector of MAX_VELOCITY rotated by a random amount.
 	float r = (float)(rand() % 360); //The rotation in degrees (which is a random number from 0-360).
@@ -50,16 +51,6 @@ void Critter::Destroy()
 {
 	/*UnloadTexture(m_texture);*/ //Keep texture while respawning.
 	m_isLoaded = false;
-}
-
-void Critter::Update(float dt)
-{
-	if (!m_isLoaded)
-		return;
-	m_position.x += m_velocity.x * dt;
-	m_position.y += m_velocity.y * dt;
-
-	m_isDirty = false;
 }
 
 void Critter::WallBounce() //Bounce off the edges of the screen.
@@ -86,6 +77,19 @@ void Critter::WallBounce() //Bounce off the edges of the screen.
 	}
 }
 
+void Critter::Update(float dt)
+{
+	if (!m_isLoaded)
+		return;
+	WallBounce();
+	m_position.x += m_velocity.x * dt;
+	m_position.y += m_velocity.y * dt;
+
+	m_isDirty = false;
+}
+
+
+
 void Critter::Draw(Color c)
 {
 	if (m_isLoaded) { DrawTexture(*m_texture, (int)m_position.x - m_hWidth, (int)m_position.y - m_hHeight, c); }
@@ -106,7 +110,7 @@ bool Critter::Collides(Critter* other)
 	return (dist < m_hWidth + other->m_hWidth);*/
 }
 
-void Critter::OnCollide(Critter* other, const int MAX_VELOCITY)
+void Critter::OnCollide(Critter* other)
 {
 	if (Type() == other->Type())
 	{
@@ -115,7 +119,7 @@ void Critter::OnCollide(Critter* other, const int MAX_VELOCITY)
 		Vector2 normal = Vector2Normalize(Vector2Subtract(other->GetPosition(), GetPosition()));
 
 		// not even close to real physics, but fine for our needs
-		SetVelocity(Vector2Scale(normal, -MAX_VELOCITY));
+		SetVelocity(Vector2Scale(normal, -(float)MAX_VELOCITY));
 		// set the critter to *dirty* so we know not to process any more collisions on it
 		SetDirty();
 

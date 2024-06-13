@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
     //Initialize the destroyer.
     Critter* destroyer = new Destroyer();
-    destroyer->Spawn(SCREEN_WIDTH, SCREEN_HEIGHT, MAX_VELOCITY);
+    destroyer->Spawn();
     destroyer->SetTexture(&t_destroyer);
     critters[0] = destroyer;
 
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
         //Create a critter in a random location and load its texture.
         Critter* c = new Critter();
         critters[i] = c;
-        c->Spawn(SCREEN_WIDTH, SCREEN_HEIGHT, MAX_VELOCITY);
+        c->Spawn();
         c->SetTexture(&t_critter);
     }
 
@@ -86,9 +86,7 @@ int main(int argc, char* argv[])
             if (!critters[i]->IsDead()) //Update living critter.
             {
                 critters[i]->Update(delta); //Update each critter (dirty flags will be cleared during update).
-                critters[i]->WallBounce(); //Check each critter against screen bounds.
-                map.Add(critters[i]);
-                map.Collisions();
+                map.Collisions(critters[i]);
             }
             else if (respawn) //Respawn critter.
             {

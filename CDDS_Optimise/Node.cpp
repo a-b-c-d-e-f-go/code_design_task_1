@@ -1,4 +1,5 @@
 #include "Node.h"
+#include <iostream>
 
 Node::Node()
 {
@@ -14,34 +15,22 @@ Node::~Node()
 {
 }
 
-bool Node::Add(Critter* _critter)
+void Node::Collisions(Critter* _critter)
 {
-	critters.push_back(_critter);
-	return false;
-}
-
-void Node::Collisions()
-{
-	for (auto& i : critters) {
-		for (auto& j : critters) {
-			if (i != j && !i->IsDirty() && !j->IsDead()) // note: the other critter (j) could be dirty - that's OK
-			{
-				//Check every critter against every other critter.
-				if (i->Collides(j))
-				{
-					//Break the second loop on collision (still looping through i).
-					i->OnCollide(j, MAX_VELOCITY);
-					break;
-				}
-			}
+	for (vector<Critter*>::iterator iter = critters.begin(); iter < critters.end(); iter++)
+	{
+		cout << "checc";
+		if (_critter->Collides(critters[0]))
+		{
+			_critter->OnCollide(critters[0]);
 		}
 	}
-	critters.clear();
+	critters.push_back(_critter);
 }
 
 void Node::Reset()
 {
-	
+	critters.clear();
 }
 
 void Node::Draw()
