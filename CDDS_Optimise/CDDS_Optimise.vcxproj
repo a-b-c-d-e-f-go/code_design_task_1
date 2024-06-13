@@ -175,6 +175,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
+    <ClInclude Include="AL.h" />
     <ClInclude Include="Critter.h" />
     <ClInclude Include="Destroyer.h" />
     <ClInclude Include="Map.h" />

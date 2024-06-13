@@ -30,7 +30,7 @@ public:
 	virtual void SetTexture(const Texture2D* texture);
 	void Destroy();
 	void Update(float dt);
-	void WallBounce(const int screenWidth, const int screenHeight);
+	void WallBounce();
 	void Draw(Color c = WHITE);
 
 	bool Collides(Critter* other);

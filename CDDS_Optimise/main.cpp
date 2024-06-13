@@ -33,14 +33,9 @@ int main(int argc, char* argv[])
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = Map::SCREEN_WIDTH;
-    const int screenHeight = Map::SCREEN_HEIGHT;
+    Critter* critters[CRITTER_COUNT]{}; //Root critters array.
 
-    //Const variables for initializing critters.
-    const int CRITTER_COUNT = Map::NODE_CAPACITY;
-    const int MAX_VELOCITY = 80;
-
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib [core] example - basic window");
 
     //SetTargetFPS(60);
 
@@ -54,18 +49,18 @@ int main(int argc, char* argv[])
 
     //Initialize the destroyer.
     Critter* destroyer = new Destroyer();
-    destroyer->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
+    destroyer->Spawn(SCREEN_WIDTH, SCREEN_HEIGHT, MAX_VELOCITY);
     destroyer->SetTexture(&t_destroyer);
-    map.Add(destroyer);
+    critters[0] = destroyer;
 
     //Initialize critters.
     for (int i = 1; i < CRITTER_COUNT; i++)
     {
         //Create a critter in a random location and load its texture.
         Critter* c = new Critter();
-        c->Spawn(screenWidth, screenHeight, MAX_VELOCITY);
+        critters[i] = c;
+        c->Spawn(SCREEN_WIDTH, SCREEN_HEIGHT, MAX_VELOCITY);
         c->SetTexture(&t_critter);
-        map.Add(c);
     }
 
     //Initialize timers.
@@ -82,50 +77,30 @@ int main(int argc, char* argv[])
         //----------------------------------------------------------------------------------
         float delta = GetFrameTime();
 
-        map.Update(delta);
-        //for (int i = 0; i < CRITTER_COUNT; i++)
-        //{
-        //    if (!critters[i]->IsDead())
-        //    {
-        //        critters[i]->Update(delta); //Update each critter (dirty flags will be cleared during update).
-        //        critters[i]->WallBounce(screenWidth, screenHeight); //Check each critter against screen bounds.
-        //        //Loop through all other critters.
-        //        for (int j = 0; j < CRITTER_COUNT; j++) {
-        //            if (i != j && !critters[i]->IsDirty() && !critters[j]->IsDead()) // note: the other critter (j) could be dirty - that's OK
-        //            {
-        //                //Check every critter against every other critter.
-        //                if (critters[i]->Collides(critters[j]))
-        //                {
-        //                    //Break the second loop on collision (still looping through i).
-        //                    critters[i]->OnCollide(critters[j], MAX_VELOCITY);
-        //                    break;
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+        timer -= delta; //Update timer.
+        bool respawn = false;
+        if (timer <= 0) { timer = 1; respawn = true; } //Reset timer and allow respawning 1 dead critter.
 
-        timer -= delta;
-        if (timer <= 0)
+        loop(i, 0, CRITTER_COUNT)
         {
-            timer = 1;
+            if (!critters[i]->IsDead()) //Update living critter.
+            {
+                critters[i]->Update(delta); //Update each critter (dirty flags will be cleared during update).
+                critters[i]->WallBounce(); //Check each critter against screen bounds.
+                map.Add(critters[i]);
+                map.Collisions();
+            }
+            else if (respawn) //Respawn critter.
+            {
+                Vector2 normal = Vector2Normalize(destroyer->GetVelocity());
 
-            //Find any dead critters and spit them out (respawn).
-
-            //for (int i = 0; i < CRITTER_COUNT; i++)
-            //{
-            //    if (critters[i]->IsDead())
-            //    {
-            //        Vector2 normal = Vector2Normalize(destroyer->GetVelocity());
-
-            //        // get a position behind the destroyer, and far enough away that the critter won't bump into it again
-            //        Vector2 pos = destroyer->GetPosition();
-            //        pos = Vector2Add(pos, Vector2Scale(normal, -50));
-            //        critters[i]->Init(pos, Vector2Scale(normal, -MAX_VELOCITY));
-            //        break;
-            //    }
-            //}
-            nextSpawnPos = destroyer->GetPosition();
+                 //Get a position behind the destroyer, and far enough away that the critter won't bump into it again.
+                 Vector2 pos = destroyer->GetPosition();
+                 pos = Vector2Add(pos, Vector2Scale(normal, -50));
+                 critters[i]->Init(pos, Vector2Scale(normal, -(float)MAX_VELOCITY));
+                 nextSpawnPos = destroyer->GetPosition();
+            }
+            map.Reset();
         }
         //----------------------------------------------------------------------------------
         
@@ -136,7 +111,12 @@ int main(int argc, char* argv[])
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
+        loop(i, 0, CRITTER_COUNT)
+        {
+            critters[i]->Draw();
+        }
         map.Draw();
+        //cout << delta << endl;
 
         DrawFPS(10, 10);
 
@@ -151,6 +131,10 @@ int main(int argc, char* argv[])
 
     // De-Initialization
     //--------------------------------------------------------------------------------------   
+    loop(i, 0, CRITTER_COUNT)
+    {
+        delete critters[i];
+    }
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 

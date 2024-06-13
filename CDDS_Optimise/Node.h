@@ -1,29 +1,19 @@
 #pragma once
 #include "AABB.h"
 #include "Critter.h"
-
-#define ifv(ptr) if (ptr != nullptr) //If valid (for pointers).
-#define ifn(ptr) if (ptr == nullptr) //If null (for pointers).
-#define loop(var, start, end) for (int var = start; var < end; var++) //For loop preset.
-
-//Delete array (for cleanup).
-#define del_arr(arr, size)					\
-ifv (arr) {									\
-	loop (i, 0, size) { 					\
-		ifv (arr[i]) {						\
-			delete arr[i];					\
-		}									\
-	}										\
-	delete arr;								\
-	arr = nullptr;							\
-}
+#include "AL.h"
+#include <vector>
 
 struct Node
 {
+	
 	AABB bounds = AABB();
-	Critter** critters;
+	vector<Critter*> critters{};
 	Node();
 	Node(AABB _bounds);
 	~Node();
-	void Add(Critter* _critter);
+	bool Add(Critter* _critter);
+	void Collisions();
+	void Reset();
+	void Draw();
 };

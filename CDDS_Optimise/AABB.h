@@ -8,7 +8,7 @@ using namespace std;
 
 struct AABB
 {
-	AABB() {}
+	AABB() : min(Vector2{0, 0}), max(Vector2{ 0, 0 }) {}
 	AABB(Vector2 _min, Vector2 _max) : min(_min), max(_max) {}
 
 	bool contains(Vector2 point, float leeway = 0.0f) const
