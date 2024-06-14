@@ -1,10 +1,10 @@
 #pragma once
 
-
+#include "AL.h"
 #include "raylib.h"
+#include "raymath.h"
 #include <random>
 #include <iostream>
-
 using namespace std;
 
 class Critter
@@ -33,8 +33,8 @@ public:
 	void Update(float dt);
 	void Draw(Color c = WHITE);
 
-	bool Collides(Critter* other);
-	virtual void OnCollide(Critter* other);
+	virtual bool Collides(Critter* other);
+	void OnCollide(Critter* other);
 	virtual char Type() { return 'c'; }
 
 	const float GetX() const { return m_position.x; }
@@ -56,7 +56,7 @@ public:
 
 	const bool IsDead() const { return m_isLoaded == false; }
 
-	friend ostream& operator<<(ostream& os, const Critter& b)
+	friend ostream& operator<<(ostream& os, const Critter& b) //Print as (x,y).
 	{
 		os << "(" << b.GetX() << "," << b.GetY() << ")";
 		return os;

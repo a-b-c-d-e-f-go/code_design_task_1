@@ -12,7 +12,6 @@ struct Map
 	void Check(Critter* _critter, size_t _x, size_t _y);
 	void Reset();
 	void Draw();
-	void Cleanup();
 
 	Node* nodes[MAP_COLUMNS][MAP_ROWS];
 };

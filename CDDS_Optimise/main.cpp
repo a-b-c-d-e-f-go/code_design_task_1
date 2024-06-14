@@ -21,21 +21,18 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include <iostream>
-#include <random>
 #include <time.h>
-#include "Critter.h"
 #include "Destroyer.h"
 #include "Map.h"
-
+#include <iostream>
 
 int main(int argc, char* argv[])
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    Critter* critters[CRITTER_COUNT]{}; //Root critters array.
+    Critter* critters[CRITTER_COUNT]{}; //Critters array. Even though we could also access them through the map, this is faster and more convenient.
 
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib [core] example - basic window");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Owen BROOKS - Code Design and Data Structures 1: Design game optimisations");
 
     //SetTargetFPS(60);
 
@@ -54,11 +51,11 @@ int main(int argc, char* argv[])
     critters[0] = destroyer;
 
     //Initialize critters.
-    for (int i = 1; i < CRITTER_COUNT; i++)
+    loop(i, 1, CRITTER_COUNT) //Start at 1 because 0 is the destroyer.
     {
         //Create a critter in a random location and load its texture.
         Critter* c = new Critter();
-        critters[i] = c;
+        critters[i] = c; //Add to the array.
         c->Spawn();
         c->SetTexture(&t_critter);
     }
@@ -75,18 +72,19 @@ int main(int argc, char* argv[])
     {
         // Update
         //----------------------------------------------------------------------------------
-        float delta = GetFrameTime();
+        float delta = GetFrameTime(); //The magic number.
 
-        timer -= delta; //Update timer.
-        bool respawn = false;
-        if (timer <= 0) { timer = 1; respawn = true; } //Reset timer and allow respawning 1 dead critter.
+        timer -= delta; //Starts at 1, decreases towards zero by delta time.
+        bool respawn = false; //Whether or not to respawn a dead critter.
+        if (timer <= 0) { timer = 1; respawn = true; } //When the timer hits 0, reset it and allow 1 dead critter to respawn.
 
-        loop(i, 0, CRITTER_COUNT)
+        map.Reset();
+        loop(i, 0, CRITTER_COUNT) //Updating movement, adding critters to the collisions map, checking for collisions, and respawning critters are now all part of the same loop.
         {
             if (!critters[i]->IsDead()) //Update living critter.
             {
-                critters[i]->Update(delta); //Update each critter (dirty flags will be cleared during update).
                 map.Collisions(critters[i]);
+                critters[i]->Update(delta); //Update each critter (dirty flags will be cleared during update).
             }
             else if (respawn) //Respawn critter.
             {
@@ -97,8 +95,8 @@ int main(int argc, char* argv[])
                  pos = Vector2Add(pos, Vector2Scale(normal, -50));
                  critters[i]->Init(pos, Vector2Scale(normal, -(float)MAX_VELOCITY));
                  nextSpawnPos = destroyer->GetPosition();
+                 respawn = false; //Only 1 respawn per timer.
             }
-            map.Reset();
         }
         //----------------------------------------------------------------------------------
         
@@ -113,26 +111,24 @@ int main(int argc, char* argv[])
         {
             critters[i]->Draw();
         }
-        map.Draw();
-        //cout << delta << endl;
-
+        //map.Draw(); //Debug only - shows the map's nodes but is performance intensive.
         DrawFPS(10, 10);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
 
+    // De-Initialization
+    //--------------------------------------------------------------------------------------   
+    loop(i, 0, CRITTER_COUNT) //Includes destroyer.
+    {
+        delete critters[i];
+    }
+
     //Only 2 textures need to be unloaded, because only 2 were loaded in the first place.
     UnloadTexture(t_critter);
     UnloadTexture(t_destroyer);
 
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------   
-    loop(i, 0, CRITTER_COUNT)
-    {
-        delete critters[i];
-    }
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 

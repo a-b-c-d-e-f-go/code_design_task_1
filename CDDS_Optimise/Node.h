@@ -1,7 +1,7 @@
 #pragma once
-#include "AABB.h"
-#include "Critter.h"
 #include "AL.h"
+#include "Critter.h"
+#include "AABB.h"
 #include <vector>
 
 struct Node

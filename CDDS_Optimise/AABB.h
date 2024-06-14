@@ -1,4 +1,5 @@
-//https://github.com/AcademyOfInteractiveEntertainment/AIEYear1Samples
+//Based on https://github.com/AcademyOfInteractiveEntertainment/AIEYear1Samples
+//Uses min/max xy values instead of centre and half width/half height because its more convenient for drawing and collision checks.
 
 #pragma once
 #include "raymath.h"

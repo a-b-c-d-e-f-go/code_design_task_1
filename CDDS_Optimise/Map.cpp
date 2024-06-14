@@ -1,5 +1,4 @@
 #include "Map.h"
-#include <iostream>
 
 Map::Map()
 {
@@ -10,7 +9,9 @@ Map::Map()
 
 Map::~Map()
 {
-
+	forxy
+		delete nodes[x][y];
+	_forxy
 }
 
 void Map::Collisions(Critter* _critter)
@@ -18,9 +19,25 @@ void Map::Collisions(Critter* _critter)
 	ifv(_critter)
 	{
 		//Coordinates of the critter truncated into unsigned integers from 0-15.
-		size_t tx = (size_t)_critter->GetX() / NODE_WIDTH;
-		size_t ty = (size_t)_critter->GetY() / NODE_HEIGHT;
+		size_t tx = (size_t)(_critter->GetX() / (float)NODE_WIDTH);
+		size_t ty = (size_t)(_critter->GetY() / (float)NODE_HEIGHT);
+
+		Check(_critter, tx - 1, ty - 1);
+		Check(_critter, tx, ty - 1);
+		Check(_critter, tx + 1, ty - 1);
+
+		Check(_critter, tx - 1, ty);
 		Check(_critter, tx, ty);
+		Check(_critter, tx + 1, ty);
+
+		Check(_critter, tx - 1, ty + 1);
+		Check(_critter, tx, ty + 1);
+		Check(_critter, tx + 1, ty + 1);
+
+		if (tx < MAP_COLUMNS && ty < MAP_ROWS)
+		{
+			nodes[tx][ty]->critters.push_back(_critter);
+		}
 	}
 }
 
@@ -43,13 +60,5 @@ void Map::Draw()
 {
 	forxy
 		nodes[x][y]->Draw();
-		nodes[x][y]->Reset();
-	_forxy
-}
-
-void Map::Cleanup()
-{
-	forxy
-		delete nodes[x][y];
 	_forxy
 }

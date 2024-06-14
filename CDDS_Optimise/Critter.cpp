@@ -1,9 +1,6 @@
 #include "Critter.h"
-#include "Map.h"
 #include "raylib.h"
-#include "raymath.h"
-#include <random>
-#include <iostream>
+
 
 Critter::Critter()
 {
@@ -89,30 +86,24 @@ void Critter::Update(float dt)
 }
 
 
-
 void Critter::Draw(Color c)
 {
 	if (m_isLoaded) { DrawTexture(*m_texture, (int)m_position.x - m_hWidth, (int)m_position.y - m_hHeight, c); }
 }
-
 
 bool Critter::Collides(Critter* other)
 {
 	//AABB Collision
 	float x_dist = abs(m_position.x - other->m_position.x);
 	float y_dist = abs(m_position.y - other->m_position.y);
-	float x_collide = m_hWidth + other->m_hWidth;
-	float y_collide = m_hHeight + other->m_hHeight;
+	float x_collide = (float)(m_hWidth + other->m_hWidth);
+	float y_collide = (float)(m_hHeight + other->m_hHeight);
 	return (x_dist < x_collide) && (y_dist < y_collide);
-
-	//Circle Collision
-	/*float dist = Vector2Distance(m_position, other->m_position);
-	return (dist < m_hWidth + other->m_hWidth);*/
 }
 
 void Critter::OnCollide(Critter* other)
 {
-	if (Type() == other->Type())
+	if (Type() == other->Type()) //Bounce on contact with another critter.
 	{
 		// collision!
 		// do math to get critters bouncing
@@ -129,5 +120,9 @@ void Critter::OnCollide(Critter* other)
 			other->SetVelocity(Vector2Scale(normal, MAX_VELOCITY));
 			other->SetDirty();
 		}
+	}
+	else //Destroy on contact with something else.
+	{
+		Destroy();
 	}
 }
