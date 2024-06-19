@@ -103,26 +103,19 @@ bool Critter::Collides(Critter* other)
 
 void Critter::OnCollide(Critter* other)
 {
-	if (Type() == other->Type()) //Bounce on contact with another critter.
-	{
-		// collision!
-		// do math to get critters bouncing
-		Vector2 normal = Vector2Normalize(Vector2Subtract(other->GetPosition(), GetPosition()));
+	// collision!
+	// do math to get critters bouncing
+	Vector2 normal = Vector2Normalize(Vector2Subtract(other->GetPosition(), GetPosition()));
 
-		// not even close to real physics, but fine for our needs
-		SetVelocity(Vector2Scale(normal, -(float)MAX_VELOCITY));
-		// set the critter to *dirty* so we know not to process any more collisions on it
-		SetDirty();
+	// not even close to real physics, but fine for our needs
+	SetVelocity(Vector2Scale(normal, -(float)MAX_VELOCITY));
+	// set the critter to *dirty* so we know not to process any more collisions on it
+	SetDirty();
 
-		// we still want to check for collisions in the case where 1 critter is dirty - so we need a check 
-		// to make sure the other critter is clean before we do the collision response
-		if (!other->IsDirty()) {
-			other->SetVelocity(Vector2Scale(normal, MAX_VELOCITY));
-			other->SetDirty();
-		}
-	}
-	else //Destroy on contact with something else.
-	{
-		Destroy();
+	// we still want to check for collisions in the case where 1 critter is dirty - so we need a check 
+	// to make sure the other critter is clean before we do the collision response
+	if (!other->IsDirty()) {
+		other->SetVelocity(Vector2Scale(normal, MAX_VELOCITY));
+		other->SetDirty();
 	}
 }

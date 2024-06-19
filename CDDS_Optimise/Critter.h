@@ -33,9 +33,8 @@ public:
 	void Update(float dt);
 	void Draw(Color c = WHITE);
 
-	virtual bool Collides(Critter* other);
-	void OnCollide(Critter* other);
-	virtual char Type() { return 'c'; }
+	bool Collides(Critter* other);
+	virtual void OnCollide(Critter* other);
 
 	const float GetX() const { return m_position.x; }
 	const float GetY() const { return m_position.y; }

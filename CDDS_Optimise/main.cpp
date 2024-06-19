@@ -48,10 +48,10 @@ int main(int argc, char* argv[])
     Critter* destroyer = new Destroyer();
     destroyer->Spawn();
     destroyer->SetTexture(&t_destroyer);
-    critters[0] = destroyer;
+    critters[CRITTER_COUNT - 1] = destroyer; //Set to last item.
 
     //Initialize critters.
-    loop(i, 1, CRITTER_COUNT) //Start at 1 because 0 is the destroyer.
+    loop(i, 0, CRITTER_COUNT - 1) //End at CRITTER_COUNT - 1 because the last one is the destroyer.
     {
         //Create a critter in a random location and load its texture.
         Critter* c = new Critter();
@@ -83,8 +83,8 @@ int main(int argc, char* argv[])
         {
             if (!critters[i]->IsDead()) //Update living critter.
             {
-                map.Collisions(critters[i]);
-                critters[i]->Update(delta); //Update each critter (dirty flags will be cleared during update).
+                map.Collisions(critters[i]); //Only adding living critters to the collision map means a lot less checks.
+                critters[i]->Update(delta); //Update each critter (includes wallbouncing).
             }
             else if (respawn) //Respawn critter.
             {
